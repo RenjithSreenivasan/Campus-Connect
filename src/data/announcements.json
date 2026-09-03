@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "title": "Semester Examination Schedule Released",
+    "category": "Academic",
+    "priority": "High",
+    "date": "30 Aug 2026",
+    "description": "The examination timetable for the upcoming semester has been published. Students are advised to check their respective schedules."
+  },
+  {
+    "id": 2,
+    "title": "College Closed for Onam Holiday",
+    "category": "Holiday",
+    "priority": "Medium",
+    "date": "02 Sep 2026",
+    "description": "The college will remain closed during the upcoming Onam holidays. Classes will resume according to the published academic calendar."
+  },
+  {
+    "id": 3,
+    "title": "Workshop Registration Open",
+    "category": "Events",
+    "priority": "General",
+    "date": "05 Sep 2026",
+    "description": "Registration is now open for the upcoming web development workshop. Students interested in attending can register through CampusConnect."
+  }
+]
