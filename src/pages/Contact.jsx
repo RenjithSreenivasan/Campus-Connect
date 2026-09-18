@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import { useState } from "react";
+import { submitContactAPI } from "../services/allAPI";
 
 function Contact() {
   const [formData, setFormData] = useState({
@@ -9,6 +10,8 @@ function Contact() {
   });
 
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState(null);
 
   // Handle input changes
   const handleChange = (e) => {
@@ -19,24 +22,51 @@ function Contact() {
       [name]: value,
     }));
 
-    // Hide success message when user starts typing again
+    // Clear messages when user starts typing again
     if (submitted) {
       setSubmitted(false);
     }
+    if (error) {
+      setError(null);
+    }
   };
 
-  // Handle form submission
-  const handleSubmit = (e) => {
+  // Handle form submission to JSON server
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setSubmitting(true);
+    setError(null);
 
-    setSubmitted(true);
+    const contactPayload = {
+      ...formData,
+      date: new Date().toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
+    };
 
-    setFormData({
-      name: "",
-      email: "",
-      subject: "",
-      message: "",
-    });
+    try {
+      const res = await submitContactAPI(contactPayload);
+      if (res && res.status >= 200 && res.status < 300) {
+        setSubmitted(true);
+        setFormData({
+          name: "",
+          email: "",
+          subject: "",
+          message: "",
+        });
+      } else {
+        setError("Failed to save your message. Please try again.");
+      }
+    } catch (err) {
+      console.error("Error submitting contact message:", err);
+      setError("Unable to connect to the JSON server. Please ensure the server is running.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -214,8 +244,28 @@ function Contact() {
                     </h3>
 
                     <p className="mt-1 text-sm text-emerald-700">
-                      Thank you for contacting us. Our team will get back to
-                      you soon.
+                      Thank you for contacting us. Your message has been saved and our team will get back to you soon.
+                    </p>
+                  </div>
+
+                </div>
+              )}
+
+              {/* Error Message */}
+              {error && (
+                <div className="mb-6 flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 p-4">
+
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-red-100 text-red-600">
+                    ⚠️
+                  </div>
+
+                  <div>
+                    <h3 className="font-semibold text-red-800">
+                      Notice
+                    </h3>
+
+                    <p className="mt-1 text-sm text-red-700">
+                      {error}
                     </p>
                   </div>
 
@@ -327,10 +377,20 @@ function Contact() {
                 {/* Submit Button */}
                 <button
                   type="submit"
-                  className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 py-3.5 font-semibold text-white shadow-lg shadow-blue-600/20 transition duration-200 hover:-translate-y-0.5 hover:bg-blue-500 hover:shadow-blue-600/30"
+                  disabled={submitting}
+                  className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 py-3.5 font-semibold text-white shadow-lg shadow-blue-600/20 transition duration-200 hover:-translate-y-0.5 hover:bg-blue-500 hover:shadow-blue-600/30 disabled:opacity-60 disabled:cursor-not-allowed"
                 >
-                  Send Message
-                  <span>→</span>
+                  {submitting ? (
+                    <>
+                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                      Sending Message...
+                    </>
+                  ) : (
+                    <>
+                      Send Message
+                      <span>→</span>
+                    </>
+                  )}
                 </button>
 
                 <p className="mt-4 text-center text-xs text-slate-400">

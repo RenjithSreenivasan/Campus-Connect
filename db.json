@@ -1,0 +1,193 @@
+{
+  "events": [
+    {
+      "id": "1",
+      "title": "Tech Fest 2026",
+      "category": "Technology",
+      "date": "12 Sep 2026",
+      "time": "10:00 AM - 4:00 PM",
+      "location": "Main Auditorium",
+      "description": "A day full of technology, innovation, coding challenges, exhibitions and competitions.",
+      "image": "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=1000&q=80"
+    },
+    {
+      "id": "2",
+      "title": "Cultural Fest",
+      "category": "Cultural",
+      "date": "18 Sep 2026",
+      "time": "9:00 AM - 7:00 PM",
+      "location": "College Grounds",
+      "description": "Celebrate music, dance, art, food and the diverse culture of your campus community.",
+      "image": "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=1000&q=80"
+    },
+    {
+      "id": "3",
+      "title": "Career Workshop",
+      "category": "Career",
+      "date": "24 Sep 2026",
+      "time": "11:00 AM - 2:00 PM",
+      "location": "Seminar Hall",
+      "description": "Learn about careers, interviews, internships and building a successful professional future.",
+      "image": "https://images.unsplash.com/photo-1540317580384-e5d43867caa6?auto=format&fit=crop&w=1000&q=80"
+    },
+    {
+      "id": "4",
+      "title": "Hackathon 2026",
+      "category": "Technology",
+      "date": "28 Sep 2026",
+      "time": "9:00 AM - 6:00 PM",
+      "location": "Computer Science Lab",
+      "description": "Build innovative solutions to real-world problems during this exciting student coding hackathon.",
+      "image": "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=1000&q=80"
+    },
+    {
+      "id": "5",
+      "title": "Inter-College Football Tournament",
+      "category": "Sports",
+      "date": "03 Oct 2026",
+      "time": "8:00 AM - 5:00 PM",
+      "location": "College Sports Ground",
+      "description": "Compete against teams from different colleges in an exciting inter-college football tournament.",
+      "image": "https://images.unsplash.com/photo-1579952363873-27f3bade9f55?auto=format&fit=crop&w=1000&q=80"
+    },
+    {
+      "id": "6",
+      "title": "Photography Exhibition",
+      "category": "Arts",
+      "date": "07 Oct 2026",
+      "time": "10:00 AM - 3:00 PM",
+      "location": "Arts Block Gallery",
+      "description": "Explore creative photography collections captured by talented students from across the campus.",
+      "image": "https://images.unsplash.com/photo-1452780212940-6f5c0d14d848?auto=format&fit=crop&w=1000&q=80"
+    },
+    {
+      "id": "7",
+      "title": "AI & Machine Learning Seminar",
+      "category": "Technology",
+      "date": "14 Oct 2026",
+      "time": "10:30 AM - 1:00 PM",
+      "location": "Innovation Center",
+      "description": "Discover the fundamentals of artificial intelligence, machine learning and their real-world applications.",
+      "image": "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=1000&q=80"
+    },
+    {
+      "id": "8",
+      "title": "Student Club Orientation",
+      "category": "Clubs",
+      "date": "20 Oct 2026",
+      "time": "2:00 PM - 5:00 PM",
+      "location": "Student Activity Center",
+      "description": "Meet student clubs, discover new interests and find opportunities to participate in campus activities.",
+      "image": "https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&w=1000&q=80"
+    },
+    {
+      "id": "9",
+      "title": "Entrepreneurship Summit",
+      "category": "Business",
+      "date": "28 Oct 2026",
+      "time": "9:30 AM - 4:30 PM",
+      "location": "Conference Hall",
+      "description": "Connect with entrepreneurs and industry experts to learn about startups, innovation and business strategy.",
+      "image": "https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=1000&q=80"
+    },
+    {
+      "id": "10",
+      "title": "Onam Celebration",
+      "category": "Cultural",
+      "date": "05 Nov 2026",
+      "time": "9:00 AM - 3:00 PM",
+      "location": "Central Campus",
+      "description": "Celebrate Onam with traditional games, pookalam competitions, music, dance and a festive campus atmosphere.",
+      "image": "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=1000&q=80"
+    },
+    {
+      "id": "11",
+      "title": "Research & Innovation Expo",
+      "category": "Academic",
+      "date": "12 Nov 2026",
+      "time": "10:00 AM - 4:00 PM",
+      "location": "Research Block",
+      "description": "Explore innovative student projects, research ideas, prototypes and academic achievements.",
+      "image": "https://images.unsplash.com/photo-1532094349884-543bc11b234d?auto=format&fit=crop&w=1000&q=80"
+    },
+    {
+      "id": "12",
+      "title": "Alumni Meet 2026",
+      "category": "Community",
+      "date": "21 Nov 2026",
+      "time": "11:00 AM - 5:00 PM",
+      "location": "College Auditorium",
+      "description": "Reconnect with alumni, hear inspiring career stories and build valuable professional connections.",
+      "image": "https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=1000&q=80"
+    }
+  ],
+  "announcements": [
+    {
+      "id": "1",
+      "title": "Semester Examination Schedule Released",
+      "category": "Academic",
+      "priority": "High",
+      "date": "30 Aug 2026",
+      "description": "The examination timetable for the upcoming semester has been published. Students are advised to check their respective schedules."
+    },
+    {
+      "id": "2",
+      "title": "College Closed for Onam Holiday",
+      "category": "Holiday",
+      "priority": "Medium",
+      "date": "02 Sep 2026",
+      "description": "The college will remain closed during the upcoming Onam holidays. Classes will resume according to the published academic calendar."
+    },
+    {
+      "id": "3",
+      "title": "Workshop Registration Open",
+      "category": "Events",
+      "priority": "General",
+      "date": "05 Sep 2026",
+      "description": "Registration is now open for the upcoming web development workshop. Students interested in attending can register through CampusConnect."
+    }
+  ],
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Complete React Assignment",
+      "priority": "High",
+      "completed": false
+    },
+    {
+      "id": "2",
+      "title": "Prepare Project Documentation",
+      "priority": "Medium",
+      "completed": false
+    }
+  ],
+  "profile": {
+    "id": "1",
+    "name": "Renjith Sreenivasan",
+    "email": "renjith@example.com",
+    "phone": "+91 98765 43210",
+    "course": "BCA",
+    "semester": "5th Semester",
+    "college": "MEC Kottappady",
+    "bio": "BCA student interested in web development and technology."
+  },
+  "contacts": [
+    {
+      "name": "Test User",
+      "email": "test@example.com",
+      "subject": "Campus Inquiry",
+      "message": "Hello from automated test",
+      "date": "Sep 18, 2026, 09:57 AM",
+      "id": "GMzmaXbdU84"
+    },
+    {
+      "name": "Renjith Sreenivasan",
+      "email": "renjithsreenivasan49@gmail.com",
+      "subject": "hi",
+      "message": "nice to met u",
+      "date": "Sep 18, 2026, 09:59 AM",
+      "id": "316JzaMAwiA"
+    }
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
+}

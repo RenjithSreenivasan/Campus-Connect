@@ -1,12 +1,60 @@
-import React, { useState } from "react";
-import announcements from "../data/announcements.json";
+import { useEffect, useState } from "react";
+import { getAnnouncementsAPI } from "../services/allAPI";
 import { CalendarDays } from "lucide-react";
 
 function Announcements() {
+  const [announcements, setAnnouncements] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All");
 
-  // Get unique categories from JSON
+  const fetchAnnouncements = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await getAnnouncementsAPI();
+      if (response && response.status >= 200 && response.status < 300) {
+        setAnnouncements(response.data || []);
+      } else {
+        setError("Failed to fetch announcements from server.");
+      }
+    } catch (err) {
+      console.error("Error fetching announcements:", err);
+      setError("Unable to connect to the JSON server. Please ensure the server is running.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    let ignore = false;
+
+    getAnnouncementsAPI()
+      .then((response) => {
+        if (!ignore) {
+          if (response && response.status >= 200 && response.status < 300) {
+            setAnnouncements(response.data || []);
+          } else {
+            setError("Failed to fetch announcements from server.");
+          }
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        if (!ignore) {
+          console.error("Error fetching announcements:", err);
+          setError("Unable to connect to the JSON server. Please ensure the server is running.");
+          setLoading(false);
+        }
+      });
+
+    return () => {
+      ignore = true;
+    };
+  }, []);
+
+  // Get unique categories from fetched data
   const categories = [
     "All",
     ...new Set(announcements.map((item) => item.category)),
@@ -17,9 +65,9 @@ function Announcements() {
     const searchText = search.toLowerCase();
 
     const matchesSearch =
-      item.title.toLowerCase().includes(searchText) ||
-      item.description.toLowerCase().includes(searchText) ||
-      item.category.toLowerCase().includes(searchText);
+      item.title?.toLowerCase().includes(searchText) ||
+      item.description?.toLowerCase().includes(searchText) ||
+      item.category?.toLowerCase().includes(searchText);
 
     const matchesCategory =
       category === "All" || item.category === category;
@@ -135,113 +183,149 @@ function Announcements() {
 
         </div>
 
-        {/* Announcement Grid */}
-        {filteredAnnouncements.length > 0 ? (
-
-          <div className="mt-8 grid gap-6 md:grid-cols-2">
-
-            {filteredAnnouncements.map((item) => (
-
-              <article
-                key={item.id}
-                className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl"
-              >
-
-                {/* Top Accent */}
-                <div className="absolute left-0 top-0 h-full w-1 bg-blue-600" />
-
-                <div className="flex items-start justify-between gap-4">
-
-                  {/* Category */}
-                  <span className="rounded-full bg-blue-50 px-3 py-1.5 text-xs font-bold text-blue-700">
-                    {item.category}
-                  </span>
-
-                  {/* Priority */}
-                  <span
-                    className={`rounded-full px-3 py-1.5 text-xs font-semibold ${
-                      item.priority === "High"
-                        ? "bg-red-50 text-red-600"
-                        : item.priority === "Medium"
-                        ? "bg-amber-50 text-amber-600"
-                        : "bg-emerald-50 text-emerald-600"
-                    }`}
-                  >
-                    {item.priority || "General"}
-                  </span>
-
-                </div>
-
-                {/* Title */}
-                <h3 className="mt-5 text-xl font-bold leading-7 text-slate-900 transition group-hover:text-blue-600">
-                  {item.title}
-                </h3>
-
-                {/* Date */}
-                <div className="mt-4 flex items-center gap-2 text-sm font-medium text-slate-500">
-                  <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100">
-                    <CalendarDays size={27} strokeWidth={2} />
-                  </span>
-                  <span>{item.date}</span>
-                </div>
-
-                {/* Description */}
-                <p className="mt-5 leading-7 text-slate-600">
-                  {item.description}
-                </p>
-
-                {/* Footer */}
-                <div className="mt-6 flex items-center justify-between border-t border-slate-100 pt-5">
-
-                  <span className="text-xs font-medium text-slate-400">
-                    CampusConnect
-                  </span>
-
-                  <button
-                    type="button"
-                    className="font-semibold text-blue-600 transition hover:text-blue-700"
-                  >
-                    Read More →
-                  </button>
-
-                </div>
-
-              </article>
-
-            ))}
-
+        {/* Loading State */}
+        {loading && (
+          <div className="mt-12 flex flex-col items-center justify-center py-16">
+            <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-200 border-t-blue-600"></div>
+            <p className="mt-4 text-base font-semibold text-slate-600">
+              Loading announcements from server...
+            </p>
           </div>
+        )}
 
-        ) : (
+        {/* Error State */}
+        {!loading && error && (
+          <div className="mt-10 rounded-2xl border border-red-200 bg-red-50 p-6 text-center">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-red-100 text-2xl">
+              ⚠️
+            </div>
+            <h3 className="mt-4 text-xl font-bold text-red-900">
+              Failed to load announcements
+            </h3>
+            <p className="mx-auto mt-2 max-w-md text-sm text-red-700">
+              {error}
+            </p>
+            <p className="mt-1 text-xs text-red-600">
+              Please make sure the JSON server is running (`npm run server`).
+            </p>
+            <button
+              onClick={fetchAnnouncements}
+              className="mt-5 rounded-xl bg-red-600 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-red-500"
+            >
+              Try Again
+            </button>
+          </div>
+        )}
 
-          /* Empty State */
-          <div className="mt-10 rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-20 text-center">
+        {/* Announcement Grid */}
+        {!loading && !error && (
+          filteredAnnouncements.length > 0 ? (
 
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-100 text-3xl">
-              📭
+            <div className="mt-8 grid gap-6 md:grid-cols-2">
+
+              {filteredAnnouncements.map((item) => (
+
+                <article
+                  key={item.id}
+                  className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl"
+                >
+
+                  {/* Top Accent */}
+                  <div className="absolute left-0 top-0 h-full w-1 bg-blue-600" />
+
+                  <div className="flex items-start justify-between gap-4">
+
+                    {/* Category */}
+                    <span className="rounded-full bg-blue-50 px-3 py-1.5 text-xs font-bold text-blue-700">
+                      {item.category}
+                    </span>
+
+                    {/* Priority */}
+                    <span
+                      className={`rounded-full px-3 py-1.5 text-xs font-semibold ${
+                        item.priority === "High"
+                          ? "bg-red-50 text-red-600"
+                          : item.priority === "Medium"
+                          ? "bg-amber-50 text-amber-600"
+                          : "bg-emerald-50 text-emerald-600"
+                      }`}
+                    >
+                      {item.priority || "General"}
+                    </span>
+
+                  </div>
+
+                  {/* Title */}
+                  <h3 className="mt-5 text-xl font-bold leading-7 text-slate-900 transition group-hover:text-blue-600">
+                    {item.title}
+                  </h3>
+
+                  {/* Date */}
+                  <div className="mt-4 flex items-center gap-2 text-sm font-medium text-slate-500">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100">
+                      <CalendarDays size={27} strokeWidth={2} />
+                    </span>
+                    <span>{item.date}</span>
+                  </div>
+
+                  {/* Description */}
+                  <p className="mt-5 leading-7 text-slate-600">
+                    {item.description}
+                  </p>
+
+                  {/* Footer */}
+                  <div className="mt-6 flex items-center justify-between border-t border-slate-100 pt-5">
+
+                    <span className="text-xs font-medium text-slate-400">
+                      CampusConnect
+                    </span>
+
+                    <button
+                      type="button"
+                      className="font-semibold text-blue-600 transition hover:text-blue-700"
+                    >
+                      Read More →
+                    </button>
+
+                  </div>
+
+                </article>
+
+              ))}
+
             </div>
 
-            <h3 className="mt-5 text-xl font-bold text-slate-900">
-              No announcements found
-            </h3>
+          ) : (
 
-            <p className="mx-auto mt-2 max-w-md text-slate-500">
-              There are no announcements matching your current search or
-              category filter.
-            </p>
+            /* Empty State */
+            <div className="mt-10 rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-20 text-center">
 
-            <button
-              onClick={() => {
-                setSearch("");
-                setCategory("All");
-              }}
-              className="mt-6 rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white transition hover:bg-blue-500"
-            >
-              Clear Filters
-            </button>
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-100 text-3xl">
+                📭
+              </div>
 
-          </div>
+              <h3 className="mt-5 text-xl font-bold text-slate-900">
+                No announcements found
+              </h3>
 
+              <p className="mx-auto mt-2 max-w-md text-slate-500">
+                There are no announcements matching your current search or
+                category filter.
+              </p>
+
+              <button
+                onClick={() => {
+                  setSearch("");
+                  setCategory("All");
+                }}
+                className="mt-6 rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white transition hover:bg-blue-500"
+              >
+                Clear Filters
+              </button>
+
+            </div>
+
+          )
         )}
 
       </main>

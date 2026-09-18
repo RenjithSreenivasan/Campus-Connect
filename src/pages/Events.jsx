@@ -1,9 +1,57 @@
-import { useState } from "react";
-import events from "../data/events.json";
+import { useEffect, useState } from "react";
+import { getEventsAPI } from "../services/allAPI";
 
 function Events() {
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All");
+
+  const fetchEvents = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await getEventsAPI();
+      if (response && response.status >= 200 && response.status < 300) {
+        setEvents(response.data || []);
+      } else {
+        setError("Failed to fetch events from server.");
+      }
+    } catch (err) {
+      console.error("Error fetching events:", err);
+      setError("Unable to connect to the JSON server. Please ensure the server is running.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    let ignore = false;
+
+    getEventsAPI()
+      .then((response) => {
+        if (!ignore) {
+          if (response && response.status >= 200 && response.status < 300) {
+            setEvents(response.data || []);
+          } else {
+            setError("Failed to fetch events from server.");
+          }
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        if (!ignore) {
+          console.error("Error fetching events:", err);
+          setError("Unable to connect to the JSON server. Please ensure the server is running.");
+          setLoading(false);
+        }
+      });
+
+    return () => {
+      ignore = true;
+    };
+  }, []);
 
   const categories = [
     "All",
@@ -12,9 +60,9 @@ function Events() {
 
   const filteredEvents = events.filter((event) => {
     const matchesSearch =
-      event.title.toLowerCase().includes(search.toLowerCase()) ||
-      event.description.toLowerCase().includes(search.toLowerCase()) ||
-      event.location.toLowerCase().includes(search.toLowerCase());
+      event.title?.toLowerCase().includes(search.toLowerCase()) ||
+      event.description?.toLowerCase().includes(search.toLowerCase()) ||
+      event.location?.toLowerCase().includes(search.toLowerCase());
 
     const matchesCategory =
       category === "All" || event.category === category;
@@ -115,121 +163,157 @@ function Events() {
           </div>
         </div>
 
+        {/* Loading State */}
+        {loading && (
+          <div className="mt-12 flex flex-col items-center justify-center py-16">
+            <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-200 border-t-blue-600"></div>
+            <p className="mt-4 text-base font-semibold text-slate-600">
+              Loading campus events from server...
+            </p>
+          </div>
+        )}
+
+        {/* Error State */}
+        {!loading && error && (
+          <div className="mt-10 rounded-2xl border border-red-200 bg-red-50 p-6 text-center">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-red-100 text-2xl">
+              ⚠️
+            </div>
+            <h3 className="mt-4 text-xl font-bold text-red-900">
+              Failed to load events
+            </h3>
+            <p className="mx-auto mt-2 max-w-md text-sm text-red-700">
+              {error}
+            </p>
+            <p className="mt-1 text-xs text-red-600">
+              Please make sure the JSON server is running (`npm run server`).
+            </p>
+            <button
+              onClick={fetchEvents}
+              className="mt-5 rounded-xl bg-red-600 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-red-500"
+            >
+              Try Again
+            </button>
+          </div>
+        )}
+
         {/* Event Grid */}
-        {filteredEvents.length > 0 ? (
-          <div className="mt-8 grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+        {!loading && !error && (
+          filteredEvents.length > 0 ? (
+            <div className="mt-8 grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
 
-            {filteredEvents.map((event) => (
-              <article
-                key={event.id}
-                className="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl"
-              >
+              {filteredEvents.map((event) => (
+                <article
+                  key={event.id}
+                  className="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl"
+                >
 
-                {/* Image */}
-                <div className="relative h-52 overflow-hidden bg-slate-200">
+                  {/* Image */}
+                  <div className="relative h-52 overflow-hidden bg-slate-200">
 
-                  <img
-                    src={
-                      event.image ||
-                      "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1000&q=80"
-                    }
-                    alt={event.title}
-                    className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
-                  />
+                    <img
+                      src={
+                        event.image ||
+                        "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1000&q=80"
+                      }
+                      alt={event.title}
+                      className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                    />
 
-                  {/* Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent" />
+                    {/* Overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent" />
 
-                  {/* Category */}
-                  <span className="absolute left-4 top-4 rounded-full bg-white/95 px-3 py-1.5 text-xs font-bold text-blue-700 shadow-sm">
-                    {event.category}
-                  </span>
+                    {/* Category */}
+                    <span className="absolute left-4 top-4 rounded-full bg-white/95 px-3 py-1.5 text-xs font-bold text-blue-700 shadow-sm">
+                      {event.category}
+                    </span>
 
-                  {/* Date */}
-                  <div className="absolute bottom-4 left-4 rounded-xl bg-white px-4 py-2 shadow-lg">
-                    <p className="text-xs font-semibold uppercase tracking-wide text-blue-600">
-                      Date
-                    </p>
-                    <p className="text-sm font-bold text-slate-900">
-                      {event.date}
-                    </p>
-                  </div>
-
-                </div>
-
-                {/* Card Content */}
-                <div className="p-6">
-
-                  <h3 className="text-xl font-bold text-slate-900 transition group-hover:text-blue-600">
-                    {event.title}
-                  </h3>
-
-                  <p className="mt-4 line-clamp-3 text-sm leading-6 text-slate-600">
-                    {event.description}
-                  </p>
-
-                  <div className="mt-5 space-y-3 border-t border-slate-100 pt-5">
-
-                    <div className="flex items-center gap-3 text-sm text-slate-600">
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
-                        📍
-                      </div>
-
-                      <span>{event.location}</span>
+                    {/* Date */}
+                    <div className="absolute bottom-4 left-4 rounded-xl bg-white px-4 py-2 shadow-lg">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-blue-600">
+                        Date
+                      </p>
+                      <p className="text-sm font-bold text-slate-900">
+                        {event.date}
+                      </p>
                     </div>
 
-                    {event.time && (
-                      <div className="flex items-center gap-3 text-sm text-slate-600">
-                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600">
-                          🕒
-                        </div>
-
-                        <span>{event.time}</span>
-                      </div>
-                    )}
-
                   </div>
 
-                  {/* Action */}
-                  <button
-                    className="mt-6 w-full rounded-xl bg-slate-900 px-5 py-3 font-semibold text-white transition hover:bg-blue-600"
-                  >
-                    Register for Event →
-                  </button>
+                  {/* Card Content */}
+                  <div className="p-6">
 
-                </div>
-              </article>
-            ))}
+                    <h3 className="text-xl font-bold text-slate-900 transition group-hover:text-blue-600">
+                      {event.title}
+                    </h3>
 
-          </div>
-        ) : (
-          /* Empty State */
-          <div className="mt-10 rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center">
+                    <p className="mt-4 line-clamp-3 text-sm leading-6 text-slate-600">
+                      {event.description}
+                    </p>
 
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-100 text-3xl">
-              🔎
+                    <div className="mt-5 space-y-3 border-t border-slate-100 pt-5">
+
+                      <div className="flex items-center gap-3 text-sm text-slate-600">
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
+                          📍
+                        </div>
+
+                        <span>{event.location}</span>
+                      </div>
+
+                      {event.time && (
+                        <div className="flex items-center gap-3 text-sm text-slate-600">
+                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600">
+                            🕒
+                          </div>
+
+                          <span>{event.time}</span>
+                        </div>
+                      )}
+
+                    </div>
+
+                    {/* Action */}
+                    <button
+                      className="mt-6 w-full rounded-xl bg-slate-900 px-5 py-3 font-semibold text-white transition hover:bg-blue-600"
+                    >
+                      Register for Event →
+                    </button>
+
+                  </div>
+                </article>
+              ))}
+
             </div>
+          ) : (
+            /* Empty State */
+            <div className="mt-10 rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center">
 
-            <h3 className="mt-5 text-xl font-bold text-slate-900">
-              No events found
-            </h3>
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-100 text-3xl">
+                🔎
+              </div>
 
-            <p className="mx-auto mt-2 max-w-md text-slate-500">
-              We couldn't find any events matching your search or selected
-              category. Try a different search term.
-            </p>
+              <h3 className="mt-5 text-xl font-bold text-slate-900">
+                No events found
+              </h3>
 
-            <button
-              onClick={() => {
-                setSearch("");
-                setCategory("All");
-              }}
-              className="mt-6 rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white transition hover:bg-blue-500"
-            >
-              Clear Filters
-            </button>
+              <p className="mx-auto mt-2 max-w-md text-slate-500">
+                We couldn't find any events matching your search or selected
+                category. Try a different search term.
+              </p>
 
-          </div>
+              <button
+                onClick={() => {
+                  setSearch("");
+                  setCategory("All");
+                }}
+                className="mt-6 rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white transition hover:bg-blue-500"
+              >
+                Clear Filters
+              </button>
+
+            </div>
+          )
         )}
 
       </main>

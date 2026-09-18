@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import {
   CalendarDays,
   CheckCircle2,
@@ -6,6 +7,7 @@ import {
   Users,
 } from "lucide-react";
 function Home() {
+  const navigate = useNavigate();
   return (
     <div className="bg-slate-50 text-slate-900">
 
@@ -24,7 +26,7 @@ function Home() {
           <div className="max-w-3xl">
 
             <span className="mb-6 inline-flex items-center rounded-full border border-blue-400/30 bg-blue-400/10 px-4 py-2 text-sm font-medium text-blue-300 backdrop-blur-sm">
-               Your Digital Campus Companion
+              Your Digital Campus Companion
             </span>
 
             <h1 className="text-4xl font-extrabold leading-tight tracking-tight text-white sm:text-5xl lg:text-7xl">
@@ -41,11 +43,15 @@ function Home() {
             </p>
 
             <div className="mt-8 flex flex-wrap gap-4">
-              <button className="rounded-xl bg-blue-600 px-7 py-3.5 font-semibold text-white shadow-lg shadow-blue-600/30 transition hover:bg-blue-500 hover:-translate-y-0.5">
+              <button onClick={() =>
+                document.getElementById("Features")?.scrollIntoView({
+                  behavior: "smooth",
+                })
+              } className="rounded-xl bg-blue-600 px-7 py-3.5 font-semibold text-white shadow-lg shadow-blue-600/30 transition hover:bg-blue-500 hover:-translate-y-0.5">
                 Explore Campus
               </button>
 
-              <button className="rounded-xl border border-white/20 bg-white/10 px-7 py-3.5 font-semibold text-white backdrop-blur-md transition hover:bg-white/20">
+              <button  onClick={() => navigate("/events")} className="rounded-xl border border-white/20 bg-white/10 px-7 py-3.5 font-semibold text-white backdrop-blur-md transition hover:bg-white/20">
                 View Events
               </button>
             </div>

@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
+import { getProfileAPI, updateProfileAPI } from "../services/allAPI";
 import {
   Pencil,
   UserRound,
@@ -9,9 +10,12 @@ import {
   Lightbulb,
   Save,
   X,
+  AlertCircle,
 } from "lucide-react";
+
 function Profile() {
   const [profile, setProfile] = useState({
+    id: "1",
     name: "Renjith",
     email: "renjith@example.com",
     phone: "+91 98765 43210",
@@ -20,9 +24,39 @@ function Profile() {
     college: "MEC Kottappady",
     bio: "BCA student interested in web development and technology.",
   });
+  const [originalProfile, setOriginalProfile] = useState(null);
 
   const [editMode, setEditMode] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState(null);
+
+  // Fetch profile on mount
+  useEffect(() => {
+    let ignore = false;
+    getProfileAPI()
+      .then((res) => {
+        if (!ignore && res && res.status >= 200 && res.status < 300) {
+          setProfile(res.data);
+          setOriginalProfile(res.data);
+          setLoading(false);
+        } else if (!ignore) {
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        if (!ignore) {
+          console.error("Error fetching profile:", err);
+          setError("Failed to load profile from server. Using local defaults.");
+          setLoading(false);
+        }
+      });
+
+    return () => {
+      ignore = true;
+    };
+  }, []);
 
   // Handle input changes
   const handleChange = (e) => {
@@ -34,19 +68,40 @@ function Profile() {
     }));
 
     setSaved(false);
+    setError(null);
   };
 
-  // Save profile
-  const handleSubmit = (e) => {
+  // Save profile to JSON server
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setSaving(true);
+    setError(null);
 
-    setEditMode(false);
-    setSaved(true);
+    try {
+      const res = await updateProfileAPI(profile);
+      if (res && res.status >= 200 && res.status < 300) {
+        setProfile(res.data);
+        setOriginalProfile(res.data);
+        setEditMode(false);
+        setSaved(true);
+      } else {
+        setError("Failed to save profile changes to server.");
+      }
+    } catch (err) {
+      console.error("Error saving profile:", err);
+      setError("Unable to connect to the JSON server. Please make sure the server is running.");
+    } finally {
+      setSaving(false);
+    }
   };
 
-  // Cancel editing
+  // Cancel editing (revert to last saved server state)
   const handleCancel = () => {
+    if (originalProfile) {
+      setProfile(originalProfile);
+    }
     setEditMode(false);
+    setError(null);
   };
 
   return (
@@ -91,14 +146,46 @@ function Profile() {
               </h3>
 
               <p className="mt-1 text-sm text-emerald-700">
-                Your profile information has been saved.
+                Your profile information has been saved to the server.
               </p>
             </div>
 
           </div>
         )}
 
-        <div className="grid gap-8 lg:grid-cols-3">
+        {/* Error Message */}
+        {error && (
+          <div className="mb-8 flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 p-4">
+
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-red-100 text-red-600">
+              <AlertCircle size={19} />
+            </div>
+
+            <div>
+              <h3 className="font-semibold text-red-800">
+                Notice
+              </h3>
+
+              <p className="mt-1 text-sm text-red-700">
+                {error}
+              </p>
+            </div>
+
+          </div>
+        )}
+
+        {/* Loading Spinner */}
+        {loading && (
+          <div className="flex flex-col items-center justify-center py-20">
+            <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-200 border-t-blue-600" />
+            <p className="mt-4 text-base font-semibold text-slate-600">
+              Loading student profile from server...
+            </p>
+          </div>
+        )}
+
+        {!loading && (
+          <div className="grid gap-8 lg:grid-cols-3">
 
           {/* Profile Card */}
           <aside className="lg:col-span-1">
@@ -469,9 +556,19 @@ function Profile() {
 
                     <button
                       type="submit"
-                      className=" flex items-center gap-2 rounded-xl bg-blue-600 px-6 py-3.5 font-semibold text-white shadow-lg shadow-blue-600/20 transition hover:-translate-y-0.5 hover:bg-blue-500"
+                      disabled={saving}
+                      className="flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 py-3.5 font-semibold text-white shadow-lg shadow-blue-600/20 transition hover:-translate-y-0.5 hover:bg-blue-500 disabled:opacity-60 disabled:cursor-not-allowed"
                     >
-                      <Save size={17} /> Save Changes
+                      {saving ? (
+                        <>
+                          <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                          Saving Changes...
+                        </>
+                      ) : (
+                        <>
+                          <Save size={17} /> Save Changes
+                        </>
+                      )}
                     </button>
 
                     <button
@@ -491,6 +588,7 @@ function Profile() {
           </section>
 
         </div>
+        )}
 
       </main>
 
